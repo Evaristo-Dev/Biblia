@@ -4,6 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavType
@@ -36,7 +40,27 @@ fun BibleApp(repository: BibleRepository) {
     val navController = rememberNavController()
     val books = remember { repository.getBooks() }
 
-    NavHost(navController = navController, startDestination = "book_list") {
+    NavHost(
+        navController = navController,
+        startDestination = "book_list",
+        // Animação quando uma nova tela entra (desliza da direita para esquerda)
+        enterTransition = {
+            slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+        },
+        // Animação quando a tela atual sai (desliza para a esquerda)
+        exitTransition = {
+            slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+        },
+        // Animação quando voltamos para a tela anterior (desliza da esquerda para direita)
+        popEnterTransition = {
+            slideInHorizontally(initialOffsetX = { -it }) + fadeIn()
+        },
+        // Animação quando a tela de cima sai ao voltar (desliza para a direita)
+        popExitTransition = {
+            slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
+        }
+    ) {
+        // ... os seus composables continuam iguais aqui dentro
         composable("book_list") {
             BookListScreen(
                 books = books,
