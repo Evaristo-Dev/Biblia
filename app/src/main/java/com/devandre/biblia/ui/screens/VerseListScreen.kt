@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,12 +35,14 @@ fun VerseListScreen(
     chapterIndex: Int,
     onBack: () -> Unit
 ) {
-    val verses = book.chapters.getOrNull(chapterIndex) ?: emptyList()
+    val pagerState = rememberPagerState(initialPage = chapterIndex) {
+        book.chapters.size
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("${book.name} ${chapterIndex + 1}") },
+                title = { Text("${book.name} ${pagerState.currentPage + 1}") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
@@ -47,36 +51,44 @@ fun VerseListScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-        ) {
-            itemsIndexed(verses) { index, verse ->
-                val annotatedVerse = buildAnnotatedString {
-                    withStyle(style = SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    )) {
-                        append("${index + 1} ")
-                    }
-                    append(verse)
-                }
+        ) { page ->
+            val verses = book.chapters.getOrNull(page) ?: emptyList()
 
-                Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                    Text(
-                        text = annotatedVerse,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (index < verses.size - 1) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(top = 8.dp),
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                itemsIndexed(verses) { index, verse ->
+                    val annotatedVerse = buildAnnotatedString {
+                        withStyle(style = SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.primary
+                        )) {
+                            append("${index + 1} ")
+                        }
+                        append(verse)
+                    }
+
+                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                        Text(
+                            text = annotatedVerse,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth()
                         )
+                        if (index < verses.size - 1) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(top = 8.dp),
+                                thickness = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        }
                     }
                 }
             }
