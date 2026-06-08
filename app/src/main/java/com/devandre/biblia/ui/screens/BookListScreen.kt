@@ -25,7 +25,7 @@ fun BookListScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Bíblia ACF") })
+            TopAppBar(title = { Text("Bíblia JFA 1911") })
         }
     ) { innerPadding ->
         LazyColumn(
